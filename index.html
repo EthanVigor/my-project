@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一个简单好看的习惯打卡工具，记录今天，也看见坚持。">
+  <meta name="theme-color" content="#fff8f0">
+  <title>习惯打卡</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page-glow page-glow-one" aria-hidden="true"></div>
+  <div class="page-glow page-glow-two" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow"><span aria-hidden="true">✦</span> 每天一点，也有回响</p>
+        <h1>习惯打卡</h1>
+        <p class="hero-subtitle" id="dateLine">正在读取今天…</p>
+      </div>
+      <div class="today-sticker" aria-hidden="true">
+        <span>今天</span>
+        <strong id="stickerDay">--</strong>
+      </div>
+    </header>
+
+    <div class="storage-notice" id="storageNotice" role="alert" hidden>
+      当前浏览器无法保存数据，本次修改仅在关闭页面前有效。
+    </div>
+
+    <main class="dashboard-grid">
+      <section class="panel habits-panel" aria-labelledby="habitsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">今日清单</p>
+            <h2 id="habitsTitle">我的习惯</h2>
+          </div>
+          <span class="habit-count" id="habitCount">0 项</span>
+        </div>
+
+        <form class="add-form" id="addHabitForm" novalidate>
+          <label class="sr-only" for="habitName">新习惯名称</label>
+          <input
+            id="habitName"
+            name="habitName"
+            type="text"
+            maxlength="30"
+            placeholder="添加一个想坚持的习惯…"
+            autocomplete="off"
+            enterkeyhint="done"
+          >
+          <button class="primary-button" type="submit">
+            <span aria-hidden="true">＋</span>
+            添加习惯
+          </button>
+        </form>
+        <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+
+        <div class="habit-list" id="habitList"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <div class="empty-icon" aria-hidden="true">✓</div>
+          <h3>从一个小目标开始</h3>
+          <p>添加第一个习惯，今天就能为它打上勾。</p>
+          <button class="secondary-button" id="focusAddButton" type="button">添加第一个习惯</button>
+        </div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel progress-panel" aria-labelledby="progressTitle">
+          <div class="progress-copy">
+            <p class="section-kicker section-kicker-light">今日进度</p>
+            <h2 id="progressTitle">做得刚刚好</h2>
+            <p id="todaySummary">还没有习惯，先添加一项吧。</p>
+          </div>
+          <div
+            class="progress-ring"
+            id="progressRing"
+            role="img"
+            aria-label="今日还没有完成习惯"
+          >
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ff8a65"></stop>
+                  <stop offset="52%" stop-color="#ffd166"></stop>
+                  <stop offset="100%" stop-color="#46c2a8"></stop>
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="60" cy="60" r="50"></circle>
+              <circle class="ring-value" id="progressCircle" cx="60" cy="60" r="50"></circle>
+            </svg>
+            <div class="ring-label">
+              <strong id="progressPercent">0%</strong>
+              <span id="progressCount">0 / 0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel calendar-panel" aria-labelledby="calendarTitle">
+          <div class="calendar-heading">
+            <div>
+              <p class="section-kicker">坚持轨迹</p>
+              <h2 id="calendarTitle">本月记录</h2>
+            </div>
+            <div class="calendar-controls" aria-label="月份切换">
+              <button class="icon-button" id="prevMonth" type="button" aria-label="上一个月">‹</button>
+              <button class="icon-button" id="nextMonth" type="button" aria-label="下一个月">›</button>
+            </div>
+          </div>
+
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+          </div>
+          <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="习惯完成月历"></div>
+
+          <div class="calendar-footer">
+            <p id="monthSummary">本月还没有完成记录。</p>
+            <div class="heat-legend" aria-hidden="true">
+              <span>少</span>
+              <i class="heat-dot heat-1"></i>
+              <i class="heat-dot heat-2"></i>
+              <i class="heat-dot heat-3"></i>
+              <span>多</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="page-footer">
+      <p>数据只保存在这台设备的浏览器里。</p>
+      <p id="footerDate"></p>
+    </footer>
+  </div>
+
+  <dialog class="day-dialog" id="dayDialog" aria-labelledby="dayDialogTitle">
+    <div class="dialog-card">
+      <form method="dialog" class="dialog-close-form">
+        <button class="icon-button close-button" type="submit" value="close" aria-label="关闭日期详情">×</button>
+      </form>
+      <p class="section-kicker" id="dayDialogEyebrow">日期详情</p>
+      <h2 id="dayDialogTitle">今天</h2>
+      <p class="dialog-subtitle" id="dayDialogSubtitle"></p>
+      <div class="day-habit-list" id="dayHabitList"></div>
+    </div>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="deleteDialog" aria-labelledby="deleteTitle">
+    <div class="dialog-card confirm-card">
+      <div class="confirm-icon" aria-hidden="true">!</div>
+      <h2 id="deleteTitle">删除这个习惯？</h2>
+      <p id="deleteMessage">删除后，过去所有相关的打卡记录也会一并清除。</p>
+      <div class="confirm-actions">
+        <button class="secondary-button" id="cancelDelete" type="button">先保留</button>
+        <button class="danger-button" id="confirmDelete" type="button">确认删除</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
